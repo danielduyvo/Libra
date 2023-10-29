@@ -112,7 +112,7 @@ to_pseudobulk = function(input,
       mat_mm %<>%
           magrittr::extract(. %>%
                             as.matrix %>%
-                            filterByExpr(design = design, kee.lib.sizes = FALSE), )
+                            filterByExpr(design = design, keep.lib.sizes = FALSE), )
       return(mat_mm)
     }) %>%
     setNames(keep)
