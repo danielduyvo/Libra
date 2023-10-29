@@ -14,7 +14,7 @@
 #'   information. Defaults to \code{cell_type}.
 #' @param label_col the vector in \code{meta} containing the experimental
 #'   label. Defaults to \code{label}. 
-#' @param min_cells the minimum number of cells in a cell type to retain it.
+#' @param min_cells the minimum number of cells in a sample to retain it.
 #'   Defaults to \code{3}.
 #' @param min_reps the minimum number of replicates in a cell type to retain it.
 #'   Defaults to \code{2}.
@@ -28,6 +28,7 @@
 #' @importFrom purrr map map_int
 #' @importFrom Matrix rowSums colSums
 #' @importFrom stats setNames
+#' @importFrom edgeR filterByExpr
 #' @export
 #' 
 to_pseudobulk = function(input, 
@@ -58,7 +59,15 @@ to_pseudobulk = function(input,
                    cell_type = as.character(cell_type),
                    label = as.character(label))
   
-  # keep only cell types with enough cells
+  # keep only samples with enough cells
+  keepcells = 
+      meta %>%
+      group_by(cell_type, replicate) %>%
+      mutate(cells_sample = n()) %>%
+      ungroup %>%
+      dplyr::filter(cells_sample > min_cells) %>%
+      rownames
+  meta %<>% magrittr::extract(keepcells, )
   keep = meta %>%
     dplyr::count(cell_type, label) %>%
     group_by(cell_type) %>%
@@ -93,6 +102,17 @@ to_pseudobulk = function(input,
       # drop empty columns
       keep_samples = colSums(mat_mm) > 0
       mat_mm %<>% magrittr::extract(, keep_samples)
+
+      # Run edgeR filterByExpr
+      # create targets matrix
+      targets = data.frame(group_sample = colnames(mat_mm)) %>%
+          mutate(group = gsub(".*\\:", "", group_sample))
+      # create design
+      design = model.matrix(~ group, data = targets)
+      mat_mm %<>%
+          magrittr::extract(. %>%
+                            as.matrix %>%
+                            filterByExpr(design = design, kee.lib.sizes = FALSE), )
       return(mat_mm)
     }) %>%
     setNames(keep)

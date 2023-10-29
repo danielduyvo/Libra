@@ -19,8 +19,8 @@
 #'   information. Defaults to \code{cell_type}.
 #' @param label_col the vector in \code{meta} containing the experimental
 #'   label. Defaults to \code{label}.
-#' @param min_cells the minimum number of cells in a cell type to retain it.
-#'   Defaults to \code{3}.
+#' @param min_cells the minimum number of cells in a cell type for single cell, 
+#'   sample for pseudobulk to retain it. Defaults to \code{3}.
 #' @param min_reps the minimum number of replicates in a cell type to retain it.
 #'   Defaults to \code{2}.
 #' @param min_features the minimum number of expressing cells (or replicates) 
