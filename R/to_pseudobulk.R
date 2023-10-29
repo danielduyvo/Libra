@@ -62,11 +62,12 @@ to_pseudobulk = function(input,
   # keep only samples with enough cells
   keepcells = 
       meta %>%
+      rownames_to_column("cell_barcode") %>%
       group_by(cell_type, replicate) %>%
       mutate(cells_sample = n()) %>%
       ungroup %>%
       dplyr::filter(cells_sample > min_cells) %>%
-      rownames
+      dplyr::pull(cell_barcode)
   meta %<>% magrittr::extract(keepcells, )
   keep = meta %>%
     dplyr::count(cell_type, label) %>%
