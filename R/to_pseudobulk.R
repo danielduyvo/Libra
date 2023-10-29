@@ -62,6 +62,7 @@ to_pseudobulk = function(input,
   # keep only samples with enough cells
   keepcells = 
       meta %>%
+      dplyr::select(cell_type, replicate) %>%
       rownames_to_column("cell_barcode") %>%
       group_by(cell_type, replicate) %>%
       mutate(cells_sample = n()) %>%
