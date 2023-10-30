@@ -111,10 +111,12 @@ to_pseudobulk = function(input,
           mutate(group = gsub(".*\\:", "", group_sample))
       # create design
       design = model.matrix(~ group, data = targets)
+      keep_genes =
+          mat_mm %>%
+          as.matrix %>%
+          filterByExpr(design = design, keep.lib.sizes = FALSE)
       mat_mm %<>%
-          magrittr::extract(. %>%
-                            as.matrix %>%
-                            filterByExpr(design = design, keep.lib.sizes = FALSE), )
+          magrittr::extract(keep_genes, )
       return(mat_mm)
     }) %>%
     setNames(keep)
