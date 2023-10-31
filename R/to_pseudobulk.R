@@ -106,18 +106,20 @@ to_pseudobulk = function(input,
       mat_mm %<>% magrittr::extract(, keep_samples)
 
       # Run edgeR filterByExpr
+      tryCatch({
       # create targets matrix
-      targets = data.frame(group_sample = colnames(mat_mm)) %>%
-          mutate(group = gsub(".*\\:", "", group_sample))
-      # create design
-      design = model.matrix(~ group, data = targets)
-      keep_genes =
-          mat_mm %>%
-          as.matrix %>%
-          filterByExpr(design = design, keep.lib.sizes = FALSE)
-      mat_mm %<>%
-          magrittr::extract(keep_genes, )
-      return(mat_mm)
+          targets = data.frame(group_sample = colnames(mat_mm)) %>%
+              mutate(group = gsub(".*\\:", "", group_sample))
+          # create design
+          design = model.matrix(~ group, data = targets)
+          keep_genes =
+              mat_mm %>%
+              as.matrix %>%
+              filterByExpr(design = design, keep.lib.sizes = FALSE)
+          mat_mm %<>%
+              magrittr::extract(keep_genes, )
+          return(mat_mm)
+      }, error = function(e) return(NA))
     }) %>%
     setNames(keep)
   
